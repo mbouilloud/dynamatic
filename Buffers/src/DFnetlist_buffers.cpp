@@ -2733,7 +2733,11 @@ bool DFnetlist_Impl::createElasticityConstraints(Milp_Model& milp, milpVarsEB& V
             milp.newRow ( {{1, slots}, {-1, hasflop}}, '>', 0);
 
             // HasBuffer >= 0.01 * slots (1 if there is a buffer, and 0 otherwise)
+            // Slots => Buffer
             milp.newRow ( {{1,hasbuf}, {-0.01, slots}}, '>', 0);
+
+            // Buffer => Slots
+            milp.newRow ( {{1,slots}, {-0.01, hasbuf}}, '>', 0);
         }
     }
 
@@ -2804,7 +2808,11 @@ bool DFnetlist_Impl::createElasticityConstraints_sc(Milp_Model &milp, milpVarsEB
         milp.newRow ( {{1, slots}, {-1, hasflop}}, '>', 0);
 
         // HasBuffer >= 0.01 * slots (1 if there is a buffer, and 0 otherwise)
+        // Slots => Buffer
         milp.newRow ( {{1,hasbuf}, {-0.01, slots}}, '>', 0);
+
+        // Buffer => Slots
+        milp.newRow ( {{1,slots}, {-0.01, hasbuf}}, '>', 0);
     }
 
     /////////////////////////////
