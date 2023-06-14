@@ -80,6 +80,8 @@ struct user_input {
     double first;
     int timeout;
     bool set;
+    bool area;
+    int max_slots;
     string add_buff_txt; //Carmine 09.02.2022 option of additional buffer - text contains where to add buffers
     string model_mode; //Carmine 16.02.2022 option to set the model mode - default/ready/valid/all/mixed
     string lib; //Carmine 17.02.2022 it is the path containing the libraries of delays 
@@ -88,6 +90,8 @@ struct user_input {
 void clear_input(user_input& input) {
     input.graph_name = "dataflow";
     input.set = true;
+    input.area = false;
+    input.max_slots = 50;
     input.first = false;
     input.delay = 0.0;
     input.period = 5;
@@ -106,6 +110,8 @@ void print_input(const user_input& input) {
     cout << "delay: " << input.delay << ", period: " << input.period << endl;
     cout << "timeout: " << input.timeout << endl;
     cout << "set optimization: " << (input.set ? "true" : "false") << endl;
+    cout << "area constrained optimization: " << (input.area ? "true" : "false") << endl;
+    cout << "maximum number of buffer slots: " << input.max_slots << endl;
     cout << "first MG optimization: " << (input.first ? "true" : "false") << endl;
     cout << "milp model mode: " << input.model_mode << endl;
     cout << "library path " << input.lib << endl;
@@ -119,6 +125,8 @@ void parse_user_input(const vecParams& params, user_input& input) {
     regex name_regex("(-filename=)(.*)");
     regex timeout_regex("(-timeout=)(.*)");
     regex set_regex("(-set=)(.*)");
+    regex area_regex("(-area=)(.*)");
+    regex slots_regex("(-max_slots=)(.*)");
     regex solver_regex("(-solver=)(.*)");
     regex first_regex("(-first=)(.*)");
     regex add_buff_regex("(-add_buff=)(.*)"); //Carmine 09.02.2022 option of additional buffer
@@ -134,6 +142,11 @@ void parse_user_input(const vecParams& params, user_input& input) {
         } else if (regex_match(param, set_regex)) {
             string tmp = param.substr(param.find("=") + 1);
             input.set = (tmp == "false") ? false : true;
+        } else if (regex_match(param, area_regex)) {
+            string tmp = param.substr(param.find("=") + 1);
+            input.area = (tmp == "false") ? false : true;
+        } else if (regex_match(param, slots_regex)) {
+            input.max_slots = atof(param.substr(param.find("=") + 1).c_str());
         } else if (regex_match(param, timeout_regex)) {
             input.timeout = atoi(param.substr(param.find("=") + 1).c_str());
         } else if (regex_match(param, solver_regex)) {
@@ -177,6 +190,10 @@ void show_help_shab() {
     cout << "\tdefault value is false" << endl;
     cout << "-first: whether the milp should only consider the throughput for the first MG or not" << endl;
     cout << "\tdefault value is false" << endl;
+    cout << "-area: whether the optimization should constrain the total number of buffers or not" << endl;
+    cout << "\tdefault value is false" << endl;
+    cout << "-max_slots: maximum total number of buffers slots, if optimization is area constrained" << endl;
+    cout << "\tdefault value is 50" << endl;
 }
 int main_shab(const vecParams& params){
     if (params.size() == 1 && params[0] == "-help") {
@@ -204,7 +221,7 @@ int main_shab(const vecParams& params){
     if (input.set) {
         stat = DF.addElasticBuffersBB_sc(input.period, input.delay, true, 1, input.timeout, input.first, input.model_mode, input.lib);
     } else {
-        stat = DF.addElasticBuffersBB(input.period, input.delay, true, 1, input.timeout, input.first);
+        stat = DF.addElasticBuffersBB(input.period, input.delay, true, 1, input.timeout, input.first, input.area, input.max_slots);
     }
     if (stat) {
         DF.instantiateElasticBuffers();

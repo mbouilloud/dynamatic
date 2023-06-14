@@ -523,7 +523,7 @@ bool DFnetlist_Impl::addElasticBuffers(double Period, double BufferDelay, bool M
     return true;
 }
 
-bool DFnetlist_Impl::addElasticBuffersBB(double Period, double BufferDelay, bool MaxThroughput, double coverage, int timeout, bool first_MG) {
+bool DFnetlist_Impl::addElasticBuffersBB(double Period, double BufferDelay, bool MaxThroughput, double coverage, int timeout, bool first_MG, bool area, int max_slots) {
 
     cleanElasticBuffers();
 
@@ -559,6 +559,16 @@ bool DFnetlist_Impl::addElasticBuffersBB(double Period, double BufferDelay, bool
     if (not createPathConstraints(milp, milpVars, Period, BufferDelay)) return false;
     if (not createElasticityConstraints(milp, milpVars)) return false;
 
+    // Add constraint to total number of slots
+    if(area){
+        Milp_Model::vecTerms total_slots = {};
+        ForAllChannels(c) {
+            int slots = milpVars.buffer_slots[c];
+            total_slots.push_back({1, slots});
+        }
+        milp.newRow(total_slots, '<', max_slots);
+    }
+
     double highest_coef = 1.0, order_buf = 0.0001, order_slot = 0.00001;
     if (MaxThroughput) {
         createThroughputConstraints(milp, milpVars, first_MG);
@@ -577,9 +587,12 @@ bool DFnetlist_Impl::addElasticBuffersBB(double Period, double BufferDelay, bool
         highest_coef = mg_highest_coef;
     }
 
-    ForAllChannels(c) {
-        milp.newCostTerm(-1 * order_buf * highest_coef, milpVars.has_buffer[c]);
-        milp.newCostTerm(-1 * order_slot * highest_coef, milpVars.buffer_slots[c]);
+    // Keep old way of optimizing when area not selected
+    if(!area){
+        ForAllChannels(c) {
+            milp.newCostTerm(-1 * order_buf * highest_coef, milpVars.has_buffer[c]);
+            milp.newCostTerm(-1 * order_slot * highest_coef, milpVars.buffer_slots[c]);
+        }
     }
 
     milp.setMaximize();
@@ -735,7 +748,7 @@ bool DFnetlist_Impl::addElasticBuffersBB_sc(double Period, double BufferDelay, b
 
         for (channelID c: MG_disjoint[i].getChannels()) {
             if (channelIsCovered(c, false, true, false)) continue;
-
+            
             milp.newCostTerm(-1 * order_buf * highest_coef, milpVars_sc[i].has_buffer[c]);
             milp.newCostTerm(-1 * order_slot * highest_coef, milpVars_sc[i].buffer_slots[c]);
         }

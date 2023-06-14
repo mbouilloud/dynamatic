@@ -662,8 +662,8 @@ public:
      */
     bool addElasticBuffers(double Period = 0, double BufferDelay = 0, bool maxThroughput = false, double coverage = 0);
 
-    bool addElasticBuffersBB(double Period = 0, double BufferDelay = 0, bool maxThroughput = false, double coverage = 0, int timeout = -1, bool first_MG = false);
-
+    bool addElasticBuffersBB(double Period = 0, double BufferDelay = 0, bool maxThroughput = false, double coverage = 0, int timeout = -1, bool first_MG = false, bool area = false, int max_slots = 0);
+    
     bool addElasticBuffersBB_sc(double Period = 0, double BufferDelay = 0, bool maxThroughput = false, double coverage = 0, int timeout = -1, bool first_MG = false, const std::string& model_mode = "default", const std::string& lib_path="");
 
     /**
