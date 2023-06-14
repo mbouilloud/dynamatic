@@ -43,7 +43,8 @@ string filename = DUMMY;
 int period = DEFAULT_PERIOD;
 int use_default_period = 1;
 
-
+bool area = false;
+int slots = 0;
 
 string current_file;
 string project_dir;
@@ -970,6 +971,23 @@ int set_target ( string input_cmp )
     return OK;
 }
 
+
+int set_area ( string input_cmp )
+{
+    area = !area;
+    cout << "Area set to: " << area << endl;
+    return OK;
+}
+
+
+int set_slots ( string input_cmp )
+{
+    slots = stoi ( input_cmp );
+    cout << "Slots set to: " << slots << endl;
+
+    return OK;
+}
+
 int set_milp_mode ( string input_cmp )  //Carmine 23.02.22 adding the functionality of milp mode to dynamatic basic code
 {
     milp_mode = input_cmp;
@@ -1000,6 +1018,8 @@ void cmd_parser_init ( void )
     ui_cmds[CMD_WRITE_HDL].function = &write_hdl;
     ui_cmds[CMD_SOURCE].function = &source_script;
     ui_cmds[CMD_SET_PERIOD].function = &set_period;
+    ui_cmds[CMD_SET_AREA].function = &set_area;
+    ui_cmds[CMD_SET_SLOTS].function = &set_slots;
     ui_cmds[CMD_SET_TARGET].function = &set_target;
     ui_cmds[CMD_SET_MILP_MODE].function = &set_milp_mode;  //Carmine 23.02.22 adding the functionality of milp mode to dynamatic basic code
     ui_cmds[CMD_SET_MILP_SOLVER].function = &set_milp_solver;  //Carmine 25.02.22

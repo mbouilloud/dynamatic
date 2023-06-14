@@ -34,6 +34,8 @@ enum
   CMD_PROJ,
   CMD_ADD_FILE,
   CMD_SET_PERIOD,
+  CMD_SET_AREA, // Set area constrained optimization
+  CMD_SET_SLOTS, // Set max number of buffer slots
   CMD_SET_TARGET,
   CMD_SET_MILP_MODE,   //Carmine 23.02.22 adding the functionality of milp mode to dynamatic basic code
   CMD_SET_MILP_SOLVER,   //Carmine 25.02.22 setting MILP solver
@@ -61,6 +63,8 @@ static UI_CMD_T ui_cmds[] =
 	{"set_project","  : Set the project directory"},
 	{"set_top_file"," : Set the top level file"},
 	{"set_period","   : Set the hardware period"},
+  {"set_area","   : Set area constrained optimization"},
+	{"set_slots","   : Set max number of buffer slots"},
 	{"set_target","   : Set target FPGA"},
   {"set_milp_mode","   : Set MILP working mode"},     //Carmine 23.02.22 adding the functionality of milp mode to dynamatic basic code
   {"set_milp_solver","   : Set MILP solver"},     //Carmine 25.02.22 setting MILP solver
