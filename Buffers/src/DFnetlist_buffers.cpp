@@ -607,6 +607,12 @@ bool DFnetlist_Impl::addElasticBuffersBB(double Period, double BufferDelay, bool
     elapsed_time = ( uint32_t ) ( end_time - start_time ) ;
     printf ("Milp time: [ms] %d \n\r", elapsed_time);
 
+    int total_slots = 0;
+    ForAllChannels(c) {
+        total_slots += milp[milpVars.buffer_slots[c]];
+    }
+    cout << "Slots: " << total_slots << endl;
+
     Milp_Model::Status stat = milp.getStatus();
     if (stat != Milp_Model::OPTIMAL and stat != Milp_Model::NONOPTIMAL) {
         setError("No solution found to add elastic buffers.");

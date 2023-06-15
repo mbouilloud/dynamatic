@@ -88,7 +88,7 @@ struct user_input {
 
 void clear_input(user_input& input) {
     input.graph_name = "dataflow";
-    input.set = true;
+    input.set = false;
     input.max_slots = 0;
     input.first = false;
     input.delay = 0.0;
