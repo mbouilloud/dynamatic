@@ -655,7 +655,7 @@ int optimize ( string input_cmp )
         }
 
         if(slots > 0){
-            command += "-max_slots=";
+            command += " -max_slots=";
             command += to_string ( slots );
         }
 
