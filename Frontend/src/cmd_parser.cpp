@@ -1013,7 +1013,6 @@ void cmd_parser_init ( void )
     ui_cmds[CMD_WRITE_HDL].function = &write_hdl;
     ui_cmds[CMD_SOURCE].function = &source_script;
     ui_cmds[CMD_SET_PERIOD].function = &set_period;
-    ui_cmds[CMD_SET_AREA].function = &set_area;
     ui_cmds[CMD_SET_SLOTS].function = &set_slots;
     ui_cmds[CMD_SET_TARGET].function = &set_target;
     ui_cmds[CMD_SET_MILP_MODE].function = &set_milp_mode;  //Carmine 23.02.22 adding the functionality of milp mode to dynamatic basic code
