@@ -43,7 +43,6 @@ string filename = DUMMY;
 int period = DEFAULT_PERIOD;
 int use_default_period = 1;
 
-bool area = false;
 int slots = 0;
 
 string current_file;
@@ -655,6 +654,11 @@ int optimize ( string input_cmp )
         command += to_string ( period );
         }
 
+        if(slots > 0){
+            command += "-max_slots=";
+            command += to_string ( slots );
+        }
+
 	if ( !fast_token_opt )
 	{
         	command += " -model_mode=";     //Carmine 23.02.22 adding the functionality of milp mode to dynamatic basic code
@@ -970,15 +974,6 @@ int set_target ( string input_cmp )
 
     return OK;
 }
-
-
-int set_area ( string input_cmp )
-{
-    area = !area;
-    cout << "Area set to: " << area << endl;
-    return OK;
-}
-
 
 int set_slots ( string input_cmp )
 {
