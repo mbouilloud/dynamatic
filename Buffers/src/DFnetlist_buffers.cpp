@@ -523,7 +523,7 @@ bool DFnetlist_Impl::addElasticBuffers(double Period, double BufferDelay, bool M
     return true;
 }
 
-bool DFnetlist_Impl::addElasticBuffersBB(double Period, double BufferDelay, bool MaxThroughput, double coverage, int timeout, bool first_MG, bool area, int max_slots) {
+bool DFnetlist_Impl::addElasticBuffersBB(double Period, double BufferDelay, bool MaxThroughput, double coverage, int timeout, bool first_MG, int max_slots) {
 
     cleanElasticBuffers();
 
@@ -560,7 +560,7 @@ bool DFnetlist_Impl::addElasticBuffersBB(double Period, double BufferDelay, bool
     if (not createElasticityConstraints(milp, milpVars)) return false;
 
     // Add constraint to total number of slots
-    if(area){
+    if(max_slots > 0){
         Milp_Model::vecTerms total_slots = {};
         ForAllChannels(c) {
             int slots = milpVars.buffer_slots[c];
@@ -588,7 +588,7 @@ bool DFnetlist_Impl::addElasticBuffersBB(double Period, double BufferDelay, bool
     }
 
     // Keep old way of optimizing when area not selected
-    if(!area){
+    if(max_slots == 0){
         ForAllChannels(c) {
             milp.newCostTerm(-1 * order_buf * highest_coef, milpVars.has_buffer[c]);
             milp.newCostTerm(-1 * order_slot * highest_coef, milpVars.buffer_slots[c]);
