@@ -559,7 +559,7 @@ bool DFnetlist_Impl::addElasticBuffersBB(double Period, double BufferDelay, bool
     if (not createPathConstraints(milp, milpVars, Period, BufferDelay)) return false;
     if (not createElasticityConstraints(milp, milpVars)) return false;
 
-    // Add constraint to total number of slots
+    // Mathias 16.06.2023 add resource constrained optimization to buffer algo
     if(max_slots > 0){
         Milp_Model::vecTerms total_slots = {};
         ForAllChannels(c) {
@@ -587,7 +587,7 @@ bool DFnetlist_Impl::addElasticBuffersBB(double Period, double BufferDelay, bool
         highest_coef = mg_highest_coef;
     }
 
-    // Keep old way of optimizing when area not selected
+    // Mathias 16.06.2023 add resource constrained optimization to buffer algo
     if(max_slots == 0){
         ForAllChannels(c) {
             milp.newCostTerm(-1 * order_buf * highest_coef, milpVars.has_buffer[c]);
@@ -2755,6 +2755,7 @@ bool DFnetlist_Impl::createElasticityConstraints(Milp_Model& milp, milpVarsEB& V
             // Slots => Buffer
             milp.newRow ( {{1,hasbuf}, {-0.01, slots}}, '>', 0);
 
+            // Mathias 16.06.2023 fix empty buffer bug
             // Buffer => Slots
             milp.newRow ( {{1,slots}, {-0.01, hasbuf}}, '>', 0);
         }
@@ -2830,6 +2831,7 @@ bool DFnetlist_Impl::createElasticityConstraints_sc(Milp_Model &milp, milpVarsEB
         // Slots => Buffer
         milp.newRow ( {{1,hasbuf}, {-0.01, slots}}, '>', 0);
 
+        // Mathias 16.06.2023 fix empty buffer bug
         // Buffer => Slots
         milp.newRow ( {{1,slots}, {-0.01, hasbuf}}, '>', 0);
     }

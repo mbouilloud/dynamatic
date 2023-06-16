@@ -34,7 +34,7 @@ enum
   CMD_PROJ,
   CMD_ADD_FILE,
   CMD_SET_PERIOD,
-  CMD_SET_SLOTS, // Set max number of buffer slots
+  CMD_SET_SLOTS, // Mathias 16.06.2023 add resource constrained optimization to buffer algo
   CMD_SET_TARGET,
   CMD_SET_MILP_MODE,   //Carmine 23.02.22 adding the functionality of milp mode to dynamatic basic code
   CMD_SET_MILP_SOLVER,   //Carmine 25.02.22 setting MILP solver

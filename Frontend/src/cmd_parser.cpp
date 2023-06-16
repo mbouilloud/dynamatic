@@ -654,6 +654,7 @@ int optimize ( string input_cmp )
         command += to_string ( period );
         }
 
+        // Mathias 16.06.2023 add resource constrained optimization to buffer algo
         if(slots > 0){
             command += " -max_slots=";
             command += to_string ( slots );
@@ -975,6 +976,7 @@ int set_target ( string input_cmp )
     return OK;
 }
 
+// Mathias 16.06.2023 add resource constrained optimization to buffer algo
 int set_slots ( string input_cmp )
 {
     slots = stoi ( input_cmp );
@@ -1013,7 +1015,7 @@ void cmd_parser_init ( void )
     ui_cmds[CMD_WRITE_HDL].function = &write_hdl;
     ui_cmds[CMD_SOURCE].function = &source_script;
     ui_cmds[CMD_SET_PERIOD].function = &set_period;
-    ui_cmds[CMD_SET_SLOTS].function = &set_slots;
+    ui_cmds[CMD_SET_SLOTS].function = &set_slots;  // Mathias 16.06.2023 add resource constrained optimization to buffer algo
     ui_cmds[CMD_SET_TARGET].function = &set_target;
     ui_cmds[CMD_SET_MILP_MODE].function = &set_milp_mode;  //Carmine 23.02.22 adding the functionality of milp mode to dynamatic basic code
     ui_cmds[CMD_SET_MILP_SOLVER].function = &set_milp_solver;  //Carmine 25.02.22

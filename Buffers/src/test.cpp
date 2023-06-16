@@ -80,7 +80,7 @@ struct user_input {
     double first;
     int timeout;
     bool set;
-    int max_slots;
+    int max_slots; // Mathias 16.06.2023 add resource constrained optimization to buffer algo
     string add_buff_txt; //Carmine 09.02.2022 option of additional buffer - text contains where to add buffers
     string model_mode; //Carmine 16.02.2022 option to set the model mode - default/ready/valid/all/mixed
     string lib; //Carmine 17.02.2022 it is the path containing the libraries of delays 
@@ -89,7 +89,7 @@ struct user_input {
 void clear_input(user_input& input) {
     input.graph_name = "dataflow";
     input.set = false;
-    input.max_slots = 0;
+    input.max_slots = 0; // Mathias 16.06.2023 add resource constrained optimization to buffer algo
     input.first = false;
     input.delay = 0.0;
     input.period = 5;
@@ -122,7 +122,7 @@ void parse_user_input(const vecParams& params, user_input& input) {
     regex name_regex("(-filename=)(.*)");
     regex timeout_regex("(-timeout=)(.*)");
     regex set_regex("(-set=)(.*)");
-    regex slots_regex("(-max_slots=)(.*)");
+    regex slots_regex("(-max_slots=)(.*)"); // Mathias 16.06.2023 add resource constrained optimization to buffer algo
     regex solver_regex("(-solver=)(.*)");
     regex first_regex("(-first=)(.*)");
     regex add_buff_regex("(-add_buff=)(.*)"); //Carmine 09.02.2022 option of additional buffer
