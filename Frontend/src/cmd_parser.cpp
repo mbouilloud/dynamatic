@@ -823,9 +823,22 @@ int optimize ( string input_cmp )
         command += current_file;
         command += "_optimized.png";
         
-        
         system (command.c_str());
-        
+
+        //dot -Tpng reports/histogram_elaborated_bbgraph_buf.dot > file.png
+        command = "dot -Tpng ";
+        command += project_dir;
+        command += OUTPUT_DIR;
+        command += current_file;
+        command += "_bbgraph_buf.dot";
+        command += " > ";
+        command += project_dir;
+        command += OUTPUT_DIR;
+        command += current_file;
+        command += "_bbgraph_optimized.png";
+
+        system (command.c_str());
+
         output_file = project_dir;
         output_file += OUTPUT_DIR;
         output_file += current_file;
