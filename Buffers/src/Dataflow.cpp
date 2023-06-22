@@ -433,9 +433,9 @@ bool DFnetlist::addElasticBuffersBB_sc(double Period, double BufferDelay, bool m
     return DFI->addElasticBuffersBB_sc(Period, BufferDelay, maxThroughput, coverage, timeout, first_MG, model_mode, lib_path);
 }
 
-bool DFnetlist::addElasticBuffersBB(double Period, double BufferDelay, bool maxThroughput, double coverage, int timeout, bool first_MG, int max_slots)
+bool DFnetlist::addElasticBuffersBB(double Period, double BufferDelay, bool maxThroughput, double coverage, int timeout, bool first_MG, int max_slots, std::vector<double> phase)
 {
-    return DFI->addElasticBuffersBB(Period, BufferDelay, maxThroughput, coverage, timeout, first_MG, max_slots);
+    return DFI->addElasticBuffersBB(Period, BufferDelay, maxThroughput, coverage, timeout, first_MG, max_slots, phase);
 }
 
 void DFnetlist::instantiateElasticBuffers()

@@ -125,4 +125,4 @@ docs ::
 	$(DOXYGEN) $(SWIFT_SAMPLE_DOXY)
 
 clean ::
-	rm -rf $(BINDIR)/* $(OBJDIR)/*.o $(LIBDIR)/*.o
+	rm -rf $(BINDIR)/$(APP) $(OBJDIR)/*.o $(LIBDIR)/*.o

@@ -523,7 +523,7 @@ bool DFnetlist_Impl::addElasticBuffers(double Period, double BufferDelay, bool M
     return true;
 }
 
-bool DFnetlist_Impl::addElasticBuffersBB(double Period, double BufferDelay, bool MaxThroughput, double coverage, int timeout, bool first_MG, int max_slots) {
+bool DFnetlist_Impl::addElasticBuffersBB(double Period, double BufferDelay, bool MaxThroughput, double coverage, int timeout, bool first_MG, int max_slots, vector<double> phase) {
 
     cleanElasticBuffers();
 
@@ -580,7 +580,13 @@ bool DFnetlist_Impl::addElasticBuffersBB(double Period, double BufferDelay, bool
         int optimize_num = first_MG ? 1 : MG.size();
         double mg_highest_coef = 0.0;
         for (int i = 0; i < optimize_num; i++) {
-            double coef = MG[i].numChannels() * MGfreq[i] / total_freq;
+            double coef;
+            if(!phase.empty()){
+                coef = phase[i];
+            } else {
+                coef = MG[i].numChannels() * MGfreq[i] / total_freq;
+            }
+            cout << "Coeff: " << coef << endl;
             milp.newCostTerm(coef, milpVars.th_MG[i]);
             mg_highest_coef = mg_highest_coef > coef ? mg_highest_coef : coef;
         }

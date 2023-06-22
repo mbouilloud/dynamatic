@@ -19,6 +19,39 @@ using vecParams = vector<string>;
 string exec;
 string command;
 
+using vecPhase = vector<vector<double>>;
+
+bool fileExists(const std::string& fileName) {
+
+    FILE* file = NULL;
+
+    if ((file = fopen(fileName.c_str(), "r")) != NULL) {
+        fclose(file);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+vecPhase read_phases(const std::string& fileName){
+    vecPhase phases = {};
+    std::ifstream file(fileName);
+    std::string str; 
+    while (std::getline(file, str))
+    {
+        vector<double> phase = {};
+        size_t pos = 0;
+        std::string token;
+        while ((pos = str.find(" ")) != std::string::npos) {
+            token = str.substr(0, pos);
+            phase.push_back(stod(token));
+            str.erase(0, pos + 1);
+        }
+        phase.push_back(stod(str));
+        phases.push_back(phase);
+    }
+    return phases;
+}
 
 
 int main_buffers(const vecParams& params)
@@ -79,6 +112,7 @@ struct user_input {
     double delay;
     double first;
     int timeout;
+    int phase_index;
     bool set;
     int max_slots; // Mathias 16.06.2023 add resource constrained optimization to buffer algo
     string add_buff_txt; //Carmine 09.02.2022 option of additional buffer - text contains where to add buffers
@@ -94,6 +128,7 @@ void clear_input(user_input& input) {
     input.delay = 0.0;
     input.period = 5;
     input.timeout = 180;
+    input.phase_index = -1;
     input.solver = "gurobi_cl";
     input.add_buff_txt = ""; //Carmine 09.02.2022 option of additional buffer - null if it is not present
     input.model_mode = "default"; //Carmine 16.02.2022 the default option means not modifying FPGA'20 MILP model
@@ -107,6 +142,7 @@ void print_input(const user_input& input) {
     cout << "milp solver: " << input.solver << endl;
     cout << "delay: " << input.delay << ", period: " << input.period << endl;
     cout << "timeout: " << input.timeout << endl;
+    cout << "phase index: " << input.phase_index << endl;
     cout << "set optimization: " << (input.set ? "true" : "false") << endl;
     cout << "maximum number of buffer slots: " << input.max_slots << endl;
     cout << "first MG optimization: " << (input.first ? "true" : "false") << endl;
@@ -121,6 +157,7 @@ void parse_user_input(const vecParams& params, user_input& input) {
     regex delay_regex("(-delay=)(.*)");
     regex name_regex("(-filename=)(.*)");
     regex timeout_regex("(-timeout=)(.*)");
+    regex phase_regex("(-phase=)(.*)");
     regex set_regex("(-set=)(.*)");
     regex slots_regex("(-max_slots=)(.*)"); // Mathias 16.06.2023 add resource constrained optimization to buffer algo
     regex solver_regex("(-solver=)(.*)");
@@ -142,6 +179,8 @@ void parse_user_input(const vecParams& params, user_input& input) {
             input.max_slots = atof(param.substr(param.find("=") + 1).c_str());
         } else if (regex_match(param, timeout_regex)) {
             input.timeout = atoi(param.substr(param.find("=") + 1).c_str());
+        } else if (regex_match(param, phase_regex)) {
+            input.phase_index = atoi(param.substr(param.find("=") + 1).c_str());
         } else if (regex_match(param, solver_regex)) {
             input.solver = param.substr(param.find("=") + 1);
         } else if (regex_match(param, first_regex)) {
@@ -179,6 +218,8 @@ void show_help_shab() {
     cout << "\tdefault value is cbc" << endl;
     cout << "-timeout: the milp timeout. If -1, no limit will be applied" << endl;
     cout << "\tdefault value is -1" << endl;
+    cout << "-phase: the phase index. If -1, no phase optimization will be applied" << endl;
+    cout << "\tdefault value is -1" << endl;  
     cout << "-set: whether set optimization should be applied or not" << endl;
     cout << "\tdefault value is false" << endl;
     cout << "-first: whether the milp should only consider the throughput for the first MG or not" << endl;
@@ -196,6 +237,24 @@ int main_shab(const vecParams& params){
     parse_user_input(params, input);
     print_input(input);
 
+    vector<double> phase = {};
+
+    if(input.phase_index != -1){
+        if(!fileExists(input.graph_name + "_phase.txt")){
+            cerr << "No phase file found" << endl;
+            return -1;
+        }
+        
+        vecPhase phases = read_phases(input.graph_name + "_phase.txt");
+
+        if(input.phase_index >= phases.size()){
+            cerr << "Incorrect phase index" << endl;
+            return -1;
+        }
+
+        phase = phases[input.phase_index];
+    }
+
     DFnetlist DF(input.graph_name + ".dot", input.graph_name + "_bbgraph.dot");
     //DF.cleanElasticBuffers();
 
@@ -212,7 +271,7 @@ int main_shab(const vecParams& params){
     if (input.set) {
         stat = DF.addElasticBuffersBB_sc(input.period, input.delay, true, 1, input.timeout, input.first, input.model_mode, input.lib);
     } else {
-        stat = DF.addElasticBuffersBB(input.period, input.delay, true, 1, input.timeout, input.first, input.max_slots);
+        stat = DF.addElasticBuffersBB(input.period, input.delay, true, 1, input.timeout, input.first, input.max_slots, phase);
     }
     if (stat) {
         DF.instantiateElasticBuffers();
@@ -228,7 +287,11 @@ int main_shab(const vecParams& params){
     //DF.reduceMerges(); //Carmine 09.03.22 new function to eliminate 1-input merges // important after optimization since there are some 
                         //  mechanisms that depend on the type of the block
 
-    DF.writeDot(input.graph_name + "_graph_buf.dot");
+    if(input.phase_index != -1){
+        DF.writeDot(input.graph_name + "_phase_" + to_string(input.phase_index) + "_graph_buf.dot");
+    } else {
+        DF.writeDot(input.graph_name + "_graph_buf.dot");
+    }
     DF.writeDotBB(input.graph_name + "_bbgraph_buf.dot");
     return 0;
 }
