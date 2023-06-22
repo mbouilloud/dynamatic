@@ -1162,6 +1162,7 @@ void cmd_parser_init ( void )
     ui_cmds[CMD_ELABORATE].function = &elaborate;
     ui_cmds[CMD_ANALYZE].function = &analyze;
     ui_cmds[CMD_OPTIMIZE].function = &optimize;
+    ui_cmds[CMD_PHASE_OPTIMIZE].function = &phase_optimize;
     ui_cmds[CMD_WRITE_HDL].function = &write_hdl;
     ui_cmds[CMD_SOURCE].function = &source_script;
     ui_cmds[CMD_SET_PERIOD].function = &set_period;
