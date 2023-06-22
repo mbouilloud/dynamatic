@@ -62,6 +62,9 @@ bool set_filename = FALSE;
 bool is_target_set = FALSE;
 string target;
 
+bool is_phase = FALSE;
+int nb_phase = 0;
+
 //string milp_mode = "default";
 string milp_mode = "mixed";
 string milp_solver = "gurobi_cl";
@@ -288,28 +291,71 @@ int write_hdl ( string input_cmp )
     
     string command;
     if ( set_filename )
-    {       
-        //command = "dot2vhdl ";
-        command = "write_hdl ";
-        //command += current_file;
-        command += " ";
-        command += project_dir;
-        command += " ";
-        current_file = clean_path ( current_file );
-        command += project_dir;
-        command += OUTPUT_DIR;
-        stripExtension(current_file, ".cpp");
-        stripExtension(current_file, ".c");    
+    {     
+	if(is_phase){
 
-        command += current_file;
-        //command += filename;
-        //command += "_optimized";
+           for (int i = 0; i < nb_phase; i++) {
+		cout << endl;
+            	cout << "////////////////////////////////////////////////////////////" << endl;;
+            	cout << "//////////////////////  PHASE " << to_string(i) << "  ///////////////////////////" << endl;
+            	cout << "////////////////////////////////////////////////////////////" << endl;
+		cout << endl;
 
-        command +=input_cmp;
-        
-        cout << command;
-        string com = GetStdoutFromCommand( command.c_str() );
-        cout <<  com << endl;
+	   	command = "write_hdl ";
+           	command += " ";
+	   	command += project_dir;
+           	command += " ";
+
+	   	command += project_dir;
+	   	command += OUTPUT_DIR;  
+	   	command += current_file;
+		command += "_phase_";
+		command += to_string(i);
+		command += "_optimized";
+
+	   	command +=input_cmp;
+		
+	   	cout << command;
+	   	string com = GetStdoutFromCommand( command.c_str() );
+	   	cout <<  com << endl;
+		
+		if(i == nb_phase-1){
+            	   command = "cp -r ";
+		} else {
+            	   command = "mv ";
+		}
+		command += project_dir;
+            	command += "/hdl/ ";
+                
+		command += project_dir;
+            	command += "/hdl";
+		command += "_phase_";
+		command += to_string(i);
+		command += "/";
+
+        	system ( command.c_str() );
+	   }
+	} 
+	else {
+	   command = "write_hdl ";
+	   //command += current_file;
+           command += " ";
+	   command += project_dir;
+           command += " ";
+	   current_file = clean_path ( current_file );
+	   command += project_dir;
+	   command += OUTPUT_DIR;
+	   stripExtension(current_file, ".cpp");
+           stripExtension(current_file, ".c");    
+
+	   command += current_file;
+
+	   command +=input_cmp;
+		
+	   cout << command;
+	   string com = GetStdoutFromCommand( command.c_str() );
+	   cout <<  com << endl;
+	}
     }
     else
     {
@@ -921,6 +967,8 @@ int phase_optimize ( string input_cmp )
 
         if(file_exists(phase_filename)){
 
+	    is_phase = TRUE;
+
             command = "cp ";
             command += project_dir;
             command += "/src/";
@@ -938,6 +986,7 @@ int phase_optimize ( string input_cmp )
 	    int i = 0;
 
 	    for(vector<double> p: phases){
+		cout << endl;
             	cout << "////////////////////////////////////////////////////////////" << endl;;
             	cout << "//////////////////////  PHASE " << to_string(i) << "  ///////////////////////////" << endl;
             	cout << "////////////////////////////////////////////////////////////" << endl;
@@ -1034,7 +1083,8 @@ int phase_optimize ( string input_cmp )
 
 		i+=1;
 	    }
-            current_file = output_file;
+	    nb_phase = i;
+	    cout << current_file << endl;
         } else
         {
             cout << "Phase file not found\n\r";
@@ -1203,6 +1253,25 @@ int set_milp_solver ( string input_cmp )  //Carmine 25.02.22
     return OK;
 }
 
+int clean( string input_cmp)
+{
+    string command = "rm ";
+    command += project_dir;
+    command += "/";
+    command += "*.lp ";
+
+    command += project_dir;
+    command += "/";
+    command += "*.sol ";
+
+    command += project_dir;
+    command += "/";
+    command += "*.log";
+            
+    system (command.c_str());
+    return OK;
+}
+
 void cmd_parser_init ( void )
 {
     
@@ -1210,6 +1279,7 @@ void cmd_parser_init ( void )
     ui_cmds[CMD_HELP2].function = &help;
     ui_cmds[CMD_EXIT].function = &exit_funct;
     ui_cmds[CMD_PROJ].function = &set_project_dir;
+    ui_cmds[CMD_CLEAN_MILP].function = &clean;
     ui_cmds[CMD_ADD_FILE].function = &set_file;
     ui_cmds[CMD_SYNTHESIZE].function = &synth;
     ui_cmds[CMD_ABOUT].function = &about;
