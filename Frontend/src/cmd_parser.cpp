@@ -12,6 +12,7 @@
 
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
@@ -856,6 +857,30 @@ int optimize ( string input_cmp )
     return OK;
 }
 
+#include <fstream>
+using vecPhase = vector<vector<double>>;
+
+// Mathias 22.06.2023 read phases from phase file
+vecPhase read_phases(const std::string& fileName){
+    vecPhase phases = {};
+    std::ifstream file(fileName);
+    std::string str; 
+    while (std::getline(file, str))
+    {
+        vector<double> phase = {};
+        size_t pos = 0;
+        std::string token;
+        while ((pos = str.find(" ")) != std::string::npos) {
+            token = str.substr(0, pos);
+            phase.push_back(stod(token));
+            str.erase(0, pos + 1);
+        }
+        phase.push_back(stod(str));
+        phases.push_back(phase);
+    }
+    return phases;
+}
+
 int phase_optimize ( string input_cmp )
 {
     string source_file2;
@@ -873,12 +898,13 @@ int phase_optimize ( string input_cmp )
         stripExtension(current_file, ".c");  
 
         string phase_filename = project_dir;
+        phase_filename += "/src/";
         phase_filename += current_file;
         phase_filename += "_phase.txt";
 
-        cout << phase_filename << endl;
-
         if(file_exists(phase_filename)){
+            vecPhase phases = read_phases(phase_filename);
+
             source_file += project_dir;
             source_file += OUTPUT_DIR;
             source_file += current_file;
