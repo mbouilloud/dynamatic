@@ -42,6 +42,7 @@ enum
   CMD_ELABORATE,
   CMD_SYNTHESIZE,
   CMD_OPTIMIZE,
+  CMD_PHASE_OPTIMIZE, // Mathias 22.06.2023 add phase optimization to buffer algo
   CMD_WRITE_HDL,
 //  CMD_REPORTS,
   CMD_CDFG,
@@ -70,6 +71,7 @@ static UI_CMD_T ui_cmds[] =
 	{"elaborate","    : Elaborate source"				},
 	{"synthesize","   : C synthesis"				},
 	{"optimize","     : Timing optmizations"				},
+	{"phase_optimize","     : Phase optmizations"				}, // Mathias 22.06.2023 add phase optimization to buffer algo
 	{"write_hdl","    : Generate VHDL"				},
 //	{"reports","      : Report resources and timing "},
 	{"cdfg","         : Show control data flow graph "},

@@ -856,6 +856,143 @@ int optimize ( string input_cmp )
     return OK;
 }
 
+int phase_optimize ( string input_cmp )
+{
+    string source_file2;
+    std::cout << "Phase optimize" << endl;
+        
+    string command;
+
+    if (set_filename)
+    {        
+        string source_file;
+        
+        current_file = clean_path ( current_file );
+        
+        stripExtension(current_file, ".cpp");
+        stripExtension(current_file, ".c");  
+
+        string phase_filename = project_dir;
+        phase_filename += current_file;
+        phase_filename += "_phase.txt";
+
+        cout << phase_filename << endl;
+
+        if(file_exists(phase_filename)){
+            source_file += project_dir;
+            source_file += OUTPUT_DIR;
+            source_file += current_file;
+            source_file += ".dot";
+            
+            source_file2 = project_dir;
+            source_file2 += OUTPUT_DIR;
+            source_file2 += current_file;
+            source_file2 += "_bbgraph.dot";
+
+            string output_file;
+            string output_file2;
+
+            output_file += project_dir;
+            output_file += OUTPUT_DIR;
+            output_file += current_file;
+            output_file += "_optimized.dot";
+            
+            output_file2 = project_dir;
+            output_file2 += OUTPUT_DIR;
+            output_file2 += current_file;
+            output_file2 += "_bbgraph_optimized.dot";
+
+            command = "buffers buffers";
+
+            command += " -filename=";
+            command += project_dir;
+            command += OUTPUT_DIR;
+            command += current_file;
+            
+            if ( use_default_period == 0 )
+            {
+            command += " -period=";
+            command += to_string ( period );
+            }
+
+            // Mathias 16.06.2023 add resource constrained optimization to buffer algo
+            if(slots > 0){
+                command += " -max_slots=";
+                command += to_string ( slots );
+            }
+
+            command += " -model_mode=";     //Carmine 23.02.22 adding the functionality of milp mode to dynamatic basic code
+            command += milp_mode;
+
+            command += " -solver=";     //Carmine 25.02.22 set milp solver
+            command += milp_solver;
+
+            command += " ";
+            command += input_cmp;
+            
+            cout << command;
+            string com = GetStdoutFromCommand( command.c_str() );
+            cout <<  com << endl;
+
+            command = "mv ";
+            command += project_dir;
+            command += OUTPUT_DIR;
+            command += current_file;
+            command += "_graph_buf.dot ";
+                
+            command += project_dir;
+            command += OUTPUT_DIR;
+            command += current_file;
+            command += "_optimized.dot";
+            
+            system (command.c_str());
+            
+            //dot -Tpng reports/histogram_elaborated_optimized.dot > file.png
+            command = "dot -Tpng ";
+            command += project_dir;
+            command += OUTPUT_DIR;
+            command += current_file;
+            command += "_optimized.dot";
+            command += " > ";
+            command += project_dir;
+            command += OUTPUT_DIR;
+            command += current_file;
+            command += "_optimized.png";
+            
+            system (command.c_str());
+
+            //dot -Tpng reports/histogram_elaborated_bbgraph_buf.dot > file.png
+            command = "dot -Tpng ";
+            command += project_dir;
+            command += OUTPUT_DIR;
+            command += current_file;
+            command += "_bbgraph_buf.dot";
+            command += " > ";
+            command += project_dir;
+            command += OUTPUT_DIR;
+            command += current_file;
+            command += "_bbgraph_optimized.png";
+
+            system (command.c_str());
+
+            output_file = project_dir;
+            output_file += OUTPUT_DIR;
+            output_file += current_file;
+            output_file += "_optimized.dot";
+            
+            current_file = output_file;
+        } else
+        {
+            cout << "Phase file not found\n\r";
+        }
+    } else
+    {
+        cout << "Source File not set\n\r";
+    }
+    
+    return OK;
+}
+
 #include <fstream>
 
 string check_comments ( string strline )
