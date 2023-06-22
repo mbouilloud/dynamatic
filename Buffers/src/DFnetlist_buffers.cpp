@@ -581,6 +581,8 @@ bool DFnetlist_Impl::addElasticBuffersBB(double Period, double BufferDelay, bool
         double mg_highest_coef = 0.0;
         for (int i = 0; i < optimize_num; i++) {
             double coef;
+            // Mathias 22.06.2023 add phase optimization to buffer algo
+            // Use user coefficients for optimization
             if(!phase.empty()){
                 coef = phase[i];
             } else {

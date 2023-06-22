@@ -33,6 +33,7 @@ bool fileExists(const std::string& fileName) {
     }
 }
 
+// Mathias 22.06.2023 read phases from phase file
 vecPhase read_phases(const std::string& fileName){
     vecPhase phases = {};
     std::ifstream file(fileName);
@@ -112,7 +113,7 @@ struct user_input {
     double delay;
     double first;
     int timeout;
-    int phase_index;
+    int phase_index; // Mathias 22.06.2023 add phase optimization to buffer algo
     bool set;
     int max_slots; // Mathias 16.06.2023 add resource constrained optimization to buffer algo
     string add_buff_txt; //Carmine 09.02.2022 option of additional buffer - text contains where to add buffers
@@ -128,7 +129,7 @@ void clear_input(user_input& input) {
     input.delay = 0.0;
     input.period = 5;
     input.timeout = 180;
-    input.phase_index = -1;
+    input.phase_index = -1; // Mathias 22.06.2023 add phase optimization to buffer algo
     input.solver = "gurobi_cl";
     input.add_buff_txt = ""; //Carmine 09.02.2022 option of additional buffer - null if it is not present
     input.model_mode = "default"; //Carmine 16.02.2022 the default option means not modifying FPGA'20 MILP model
@@ -239,6 +240,8 @@ int main_shab(const vecParams& params){
 
     vector<double> phase = {};
 
+    // Mathias 22.06.2023 add phase optimization to buffer algo
+    // Read phases from file
     if(input.phase_index != -1){
         if(!fileExists(input.graph_name + "_phase.txt")){
             cerr << "No phase file found" << endl;
