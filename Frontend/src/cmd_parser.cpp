@@ -44,6 +44,7 @@ string filename = DUMMY;
 int period = DEFAULT_PERIOD;
 int use_default_period = 1;
 
+// Mathias 16.06.2023 add resource constrained optimization to buffer algo
 int slots = 0;
 
 string current_file;
@@ -62,6 +63,7 @@ bool set_filename = FALSE;
 bool is_target_set = FALSE;
 string target;
 
+// Mathias 22.06.2023 add phase optimization to Dynamatic
 bool is_phase = FALSE;
 int nb_phase = 0;
 
@@ -291,73 +293,73 @@ int write_hdl ( string input_cmp )
     
     string command;
     if ( set_filename )
-    {     
-	if(is_phase){
+    {   
+        // Mathias 22.06.2023 add phase optimization to Dynamatic
+        if(is_phase){
 
-           for (int i = 0; i < nb_phase; i++) {
-		cout << endl;
-            	cout << "////////////////////////////////////////////////////////////" << endl;;
-            	cout << "//////////////////////  PHASE " << to_string(i) << "  ///////////////////////////" << endl;
-            	cout << "////////////////////////////////////////////////////////////" << endl;
-		cout << endl;
+            for (int i = 0; i < nb_phase; i++) {
+                cout << endl;
+                        cout << "////////////////////////////////////////////////////////////" << endl;;
+                        cout << "//////////////////////  PHASE " << to_string(i) << "  ///////////////////////////" << endl;
+                        cout << "////////////////////////////////////////////////////////////" << endl;
+                cout << endl;
 
-	   	command = "write_hdl ";
-           	command += " ";
-	   	command += project_dir;
-           	command += " ";
+                command = "write_hdl ";
+                    command += " ";
+                command += project_dir;
+                    command += " ";
 
-	   	command += project_dir;
-	   	command += OUTPUT_DIR;  
-	   	command += current_file;
-		command += "_phase_";
-		command += to_string(i);
-		command += "_optimized";
+                command += project_dir;
+                command += OUTPUT_DIR;  
+                command += current_file;
+                command += "_phase_";
+                command += to_string(i);
+                command += "_optimized";
 
-	   	command +=input_cmp;
-		
-	   	cout << command;
-	   	string com = GetStdoutFromCommand( command.c_str() );
-	   	cout <<  com << endl;
-		
-		if(i == nb_phase-1){
-            	   command = "cp -r ";
-		} else {
-            	   command = "mv ";
-		}
-		command += project_dir;
-            	command += "/hdl/ ";
+                command +=input_cmp;
                 
-		command += project_dir;
-            	command += "/hdl";
-		command += "_phase_";
-		command += to_string(i);
-		command += "/";
+                cout << command;
+                string com = GetStdoutFromCommand( command.c_str() );
+                cout <<  com << endl;
+                
+                if(i == nb_phase-1){
+                        command = "cp -r ";
+                } else {
+                        command = "mv ";
+                }
+                command += project_dir;
+                        command += "/hdl/ ";
+                        
+                command += project_dir;
+                        command += "/hdl";
+                command += "_phase_";
+                command += to_string(i);
+                command += "/";
 
-        	system ( command.c_str() );
-	   }
-	} 
-	else {
-	   command = "write_hdl ";
-	   //command += current_file;
-           command += " ";
-	   command += project_dir;
-           command += " ";
-	   current_file = clean_path ( current_file );
-	   command += project_dir;
-	   command += OUTPUT_DIR;
-	   stripExtension(current_file, ".cpp");
-           stripExtension(current_file, ".c");    
+                    system ( command.c_str() );
+            }
+        } else 
+        {
+            command = "write_hdl ";
+            //command += current_file;
+                command += " ";
+            command += project_dir;
+                command += " ";
+            current_file = clean_path ( current_file );
+            command += project_dir;
+            command += OUTPUT_DIR;
+            stripExtension(current_file, ".cpp");
+                stripExtension(current_file, ".c");    
 
-	   command += current_file;
+            command += current_file;
 
-	   command +=input_cmp;
-		
-	   cout << command;
-	   string com = GetStdoutFromCommand( command.c_str() );
-	   cout <<  com << endl;
-	}
-    }
-    else
+            command +=input_cmp;
+                
+            cout << command;
+            string com = GetStdoutFromCommand( command.c_str() );
+            cout <<  com << endl;
+        }
+    } else
     {
         cout << "Source File not set\n\r";
     }
@@ -927,6 +929,7 @@ vecPhase read_phases(const std::string& fileName){
     return phases;
 }
 
+// Mathias 22.06.2023 add phase optimization to Dynamatic
 int phase_optimize ( string input_cmp )
 {
     string source_file2;
@@ -1012,19 +1015,18 @@ int phase_optimize ( string input_cmp )
             	command += to_string ( period );
             	}
 
-            	// Mathias 16.06.2023 add resource constrained optimization to buffer algo
             	if(slots > 0){
               	  command += " -max_slots=";
               	  command += to_string ( slots );
             	}
 
-           	 command += " -model_mode=";     //Carmine 23.02.22 adding the functionality of milp mode to dynamatic basic code
+           	 command += " -model_mode=";   
            	 command += milp_mode;
 
-            	command += " -solver=";     //Carmine 25.02.22 set milp solver
+            	command += " -solver="; 
            	 command += milp_solver;
 
-            	command += " -phase=";     //Carmine 25.02.22 set milp solver
+            	command += " -phase="; 
            	 command += to_string(i);
 
             	command += " ";
@@ -1253,6 +1255,7 @@ int set_milp_solver ( string input_cmp )  //Carmine 25.02.22
     return OK;
 }
 
+// Mathias 22.06.2023 add milp files cleaning command
 int clean( string input_cmp)
 {
     string command = "rm ";
@@ -1279,14 +1282,14 @@ void cmd_parser_init ( void )
     ui_cmds[CMD_HELP2].function = &help;
     ui_cmds[CMD_EXIT].function = &exit_funct;
     ui_cmds[CMD_PROJ].function = &set_project_dir;
-    ui_cmds[CMD_CLEAN_MILP].function = &clean;
+    ui_cmds[CMD_CLEAN_MILP].function = &clean; // Mathias 22.06.2023 add milp files cleaning command
     ui_cmds[CMD_ADD_FILE].function = &set_file;
     ui_cmds[CMD_SYNTHESIZE].function = &synth;
     ui_cmds[CMD_ABOUT].function = &about;
     ui_cmds[CMD_ELABORATE].function = &elaborate;
     ui_cmds[CMD_ANALYZE].function = &analyze;
     ui_cmds[CMD_OPTIMIZE].function = &optimize;
-    ui_cmds[CMD_PHASE_OPTIMIZE].function = &phase_optimize;
+    ui_cmds[CMD_PHASE_OPTIMIZE].function = &phase_optimize;  // Mathias 22.06.2023 add phase optimization to Dynamatic
     ui_cmds[CMD_WRITE_HDL].function = &write_hdl;
     ui_cmds[CMD_SOURCE].function = &source_script;
     ui_cmds[CMD_SET_PERIOD].function = &set_period;

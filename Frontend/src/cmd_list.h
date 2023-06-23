@@ -31,7 +31,7 @@ enum
   CMD_HELP1,
   CMD_HELP2,
   CMD_SOURCE,
-  CMD_CLEAN_MILP,
+  CMD_CLEAN_MILP, // Mathias 22.06.2023 add milp files cleaning command
   CMD_PROJ,
   CMD_ADD_FILE,
   CMD_SET_PERIOD,
@@ -43,7 +43,7 @@ enum
   CMD_ELABORATE,
   CMD_SYNTHESIZE,
   CMD_OPTIMIZE,
-  CMD_PHASE_OPTIMIZE, // Mathias 22.06.2023 add phase optimization to buffer algo
+  CMD_PHASE_OPTIMIZE, // Mathias 22.06.2023 add phase optimization to Dynamatic
   CMD_WRITE_HDL,
 //  CMD_REPORTS,
   CMD_CDFG,
