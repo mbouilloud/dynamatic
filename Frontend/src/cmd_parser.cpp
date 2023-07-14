@@ -322,11 +322,7 @@ int write_hdl ( string input_cmp )
                 string com = GetStdoutFromCommand( command.c_str() );
                 cout <<  com << endl;
                 
-                if(i == nb_phase-1){
-                        command = "cp -r ";
-                } else {
-                        command = "mv ";
-                }
+                command = "mv ";
                 command += project_dir;
                         command += "/hdl/ ";
                         
@@ -336,29 +332,28 @@ int write_hdl ( string input_cmp )
                 command += to_string(i);
                 command += "/";
 
-                    system ( command.c_str() );
+                system ( command.c_str() );
             }
-        } else 
-        {
-            command = "write_hdl ";
-            //command += current_file;
-                command += " ";
-            command += project_dir;
-                command += " ";
-            current_file = clean_path ( current_file );
-            command += project_dir;
-            command += OUTPUT_DIR;
-            stripExtension(current_file, ".cpp");
-                stripExtension(current_file, ".c");    
-
-            command += current_file;
-
-            command +=input_cmp;
-                
-            cout << command;
-            string com = GetStdoutFromCommand( command.c_str() );
-            cout <<  com << endl;
         }
+
+        command = "write_hdl ";
+        //command += current_file;
+        command += " ";
+        command += project_dir;
+        command += " ";
+        current_file = clean_path ( current_file );
+        command += project_dir;
+        command += OUTPUT_DIR;
+        stripExtension(current_file, ".cpp");
+        stripExtension(current_file, ".c");    
+
+        command += current_file;
+
+        command +=input_cmp;
+                
+        cout << command;
+        string com = GetStdoutFromCommand( command.c_str() );
+        cout <<  com << endl;
     } else
     {
         cout << "Source File not set\n\r";
@@ -1095,6 +1090,9 @@ int phase_optimize ( string input_cmp )
     {
         cout << "Source File not set\n\r";
     }
+
+    // To have the usual optimized circuit in addition to all the previous ones
+    optimize(input_cmp);
     
     return OK;
 }
