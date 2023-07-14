@@ -934,7 +934,9 @@ int phase_optimize ( string input_cmp )
 	cout << endl;
 
     // To have the usual optimized circuit in addition to all the previous ones
+    string save_current_file = current_file;
     optimize(input_cmp);
+    current_file = save_current_file;
 
     string source_file2;
     std::cout << "Phase optimize" << endl;
