@@ -294,35 +294,6 @@ int write_hdl ( string input_cmp )
     string command;
     if ( set_filename )
     {   
-        string save = current_file;
-
-        cout << endl;
-                cout << "////////////////////////////////////////////////////////////" << endl;;
-            	cout << "//////////////////////  DEFAULT  ///////////////////////////" << endl;
-            	cout << "////////////////////////////////////////////////////////////" << endl;
-	    cout << endl;
-
-        command = "write_hdl ";
-        //command += current_file;
-        command += " ";
-        command += project_dir;
-        command += " ";
-        current_file = clean_path ( current_file );
-        command += project_dir;
-        command += OUTPUT_DIR;
-        stripExtension(current_file, ".cpp");
-        stripExtension(current_file, ".c");    
-
-        command += current_file;
-
-        command +=input_cmp;
-                
-        cout << command;
-        string com = GetStdoutFromCommand( command.c_str() );
-        cout <<  com << endl;
-
-        current_file = save;
-
         // Mathias 22.06.2023 add phase optimization to Dynamatic
         if(is_phase){
 
@@ -364,6 +335,31 @@ int write_hdl ( string input_cmp )
                 system ( command.c_str() );
             }
         }
+
+        cout << endl;
+                cout << "////////////////////////////////////////////////////////////" << endl;;
+            	cout << "//////////////////////  DEFAULT  ///////////////////////////" << endl;
+            	cout << "////////////////////////////////////////////////////////////" << endl;
+	    cout << endl;
+
+        command = "write_hdl ";
+        //command += current_file;
+        command += " ";
+        command += project_dir;
+        command += " ";
+        current_file = clean_path ( current_file );
+        command += project_dir;
+        command += OUTPUT_DIR;
+        stripExtension(current_file, ".cpp");
+        stripExtension(current_file, ".c");    
+
+        command += current_file;
+
+        command +=input_cmp;
+                
+        cout << command;
+        string com = GetStdoutFromCommand( command.c_str() );
+        cout <<  com << endl;
     } else
     {
         cout << "Source File not set\n\r";
