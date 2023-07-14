@@ -927,6 +927,15 @@ vecPhase read_phases(const std::string& fileName){
 // Mathias 22.06.2023 add phase optimization to Dynamatic
 int phase_optimize ( string input_cmp )
 {
+    cout << endl;
+            	cout << "////////////////////////////////////////////////////////////" << endl;;
+            	cout << "//////////////////////  DEFAULT  ///////////////////////////" << endl;
+            	cout << "////////////////////////////////////////////////////////////" << endl;
+	cout << endl;
+
+    // To have the usual optimized circuit in addition to all the previous ones
+    optimize(input_cmp);
+
     string source_file2;
     std::cout << "Phase optimize" << endl;
         
@@ -1090,9 +1099,6 @@ int phase_optimize ( string input_cmp )
     {
         cout << "Source File not set\n\r";
     }
-
-    // To have the usual optimized circuit in addition to all the previous ones
-    optimize(input_cmp);
     
     return OK;
 }
