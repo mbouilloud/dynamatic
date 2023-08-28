@@ -64,8 +64,10 @@ bool is_target_set = FALSE;
 string target;
 
 // Mathias 22.06.2023 add phase optimization to Dynamatic
+bool is_opti = FALSE;
 bool is_phase = FALSE;
-int nb_phase = 0;
+int last_phase = 0;
+int phase_selected = 0;
 
 //string milp_mode = "default";
 string milp_mode = "mixed";
@@ -294,10 +296,38 @@ int write_hdl ( string input_cmp )
     string command;
     if ( set_filename )
     {   
+        if(is_opti) {
+            cout << endl;
+                    cout << "////////////////////////////////////////////////////////////" << endl;;
+                    cout << "//////////////////////  DEFAULT  ///////////////////////////" << endl;
+                    cout << "////////////////////////////////////////////////////////////" << endl;
+            cout << endl;
+            command = "write_hdl ";
+            //command += current_file;
+            command += " ";
+            command += project_dir;
+            command += " ";
+            current_file = clean_path ( current_file );
+
+            command += project_dir;
+            command += OUTPUT_DIR;
+            stripExtension(current_file, ".cpp");
+            stripExtension(current_file, ".c");    
+
+            command += current_file;
+            command += "_optimized";
+          
+            command +=input_cmp;
+                    
+            cout << command;
+            string com = GetStdoutFromCommand( command.c_str() );
+            cout <<  com << endl;
+        }
+
         // Mathias 22.06.2023 add phase optimization to Dynamatic
         if(is_phase){
 
-            for (int i = 0; i < nb_phase; i++) {
+            for (int i = phase_selected; i < last_phase; i++) {
                 cout << endl;
                         cout << "////////////////////////////////////////////////////////////" << endl;;
                         cout << "//////////////////////  PHASE " << to_string(i) << "  ///////////////////////////" << endl;
@@ -335,34 +365,6 @@ int write_hdl ( string input_cmp )
                 system ( command.c_str() );
             }
         }
-
-        cout << endl;
-                cout << "////////////////////////////////////////////////////////////" << endl;;
-            	cout << "//////////////////////  DEFAULT  ///////////////////////////" << endl;
-            	cout << "////////////////////////////////////////////////////////////" << endl;
-	    cout << endl;
-        command = "write_hdl ";
-        //command += current_file;
-        command += " ";
-        command += project_dir;
-        command += " ";
-        current_file = clean_path ( current_file );
-
-        command += project_dir;
-        command += OUTPUT_DIR;
-        stripExtension(current_file, ".cpp");
-        stripExtension(current_file, ".c");    
-
-        command += current_file;
-        if(is_phase){
-            command += "_optimized";
-        }
-
-        command +=input_cmp;
-                
-        cout << command;
-        string com = GetStdoutFromCommand( command.c_str() );
-        cout <<  com << endl;
     } else
     {
         cout << "Source File not set\n\r";
@@ -618,6 +620,7 @@ int optimize ( string input_cmp )
     string command;
     if ( set_filename )
     {        
+	is_opti = TRUE;
         string source_file;
         
         current_file = clean_path ( current_file );
@@ -897,7 +900,7 @@ int optimize ( string input_cmp )
         output_file += current_file;
         output_file += "_optimized.dot";
         
-        current_file = output_file;
+        //current_file = output_file;
 
     }
     else
@@ -936,16 +939,11 @@ vecPhase read_phases(const std::string& fileName){
 // Mathias 22.06.2023 add phase optimization to Dynamatic
 int phase_optimize ( string input_cmp )
 {
-    cout << endl;
-            	cout << "////////////////////////////////////////////////////////////" << endl;;
-            	cout << "//////////////////////  DEFAULT  ///////////////////////////" << endl;
-            	cout << "////////////////////////////////////////////////////////////" << endl;
-	cout << endl;
 
-    // To have the usual optimized circuit in addition to all the previous ones
+   // To have the usual optimized circuit in addition to all the previous ones
     string save_current_file = current_file;
-    optimize(input_cmp);
-    current_file = save_current_file;
+    //optimize(input_cmp);
+    //current_file = save_current_file;
 
     string source_file2;
     std::cout << "Phase optimize" << endl;
@@ -985,7 +983,7 @@ int phase_optimize ( string input_cmp )
 
         if(file_exists(phase_filename)){
 
-	    is_phase = TRUE;
+            is_phase = TRUE;
 
             command = "cp ";
             command += project_dir;
@@ -1001,14 +999,20 @@ int phase_optimize ( string input_cmp )
             system (command.c_str());
 
             vecPhase phases = read_phases(phase_filename);
-	    int i = 0;
+            last_phase = phases.size();
+            if(input_cmp.length() > 0){
+		phase_selected = stoi ( input_cmp );
+                last_phase = phase_selected + 1;    
+	    }
+               
+            
+            for(int i = phase_selected; i < last_phase; i++){
 
-	    for(vector<double> p: phases){
-		cout << endl;
+                cout << endl;
             	cout << "////////////////////////////////////////////////////////////" << endl;;
             	cout << "//////////////////////  PHASE " << to_string(i) << "  ///////////////////////////" << endl;
             	cout << "////////////////////////////////////////////////////////////" << endl;
-		cout << endl;
+                cout << endl;
 
             	output_file = project_dir;
             	output_file += OUTPUT_DIR;
@@ -1035,17 +1039,14 @@ int phase_optimize ( string input_cmp )
               	  command += to_string ( slots );
             	}
 
-           	 command += " -model_mode=";   
-           	 command += milp_mode;
+                command += " -model_mode=";   
+                command += milp_mode;
 
             	command += " -solver="; 
-           	 command += milp_solver;
+                command += milp_solver;
 
             	command += " -phase="; 
-           	 command += to_string(i);
-
-            	command += " ";
-           	 command += input_cmp;
+                command += to_string(i);
             
             	cout << command;
             	string com = GetStdoutFromCommand( command.c_str() );
@@ -1097,11 +1098,8 @@ int phase_optimize ( string input_cmp )
             	command += "_bbgraph_optimized.png";
 
             	system (command.c_str());
-
-		i+=1;
-	    }
-	    nb_phase = i;
-	    cout << current_file << endl;
+	        }
+            cout << current_file << endl;
         } else
         {
             cout << "Phase file not found\n\r";
